@@ -53,6 +53,10 @@ NODO *insertar(NODO *raiz, int reservationNumber, char namePassanger[], char des
     {
         raiz->derecha = insertar(raiz->derecha, reservationNumber, namePassanger, destinationPassanger);
     }
+    else
+    {
+        printf("El numero de reserva ingresado ya existe. \n");
+    }
 
     return raiz;
 }
@@ -67,6 +71,74 @@ void inOrden(NODO *rarbol)
         printf("Destino Vuelo: %s \n", rarbol->destinationPassanger);
         inOrden(rarbol->derecha);
     }
+}
+
+NODO *minimoValor(NODO *raiz)
+{
+    NODO *actual = raiz;
+
+    while (actual->izquierda != NULL)
+    {
+        actual = actual->izquierda;
+    }
+
+    return actual;
+}
+
+NODO *eliminar(NODO *raiz, int reservationNumber)
+{
+    if (raiz == NULL)
+    {
+        return raiz;
+    }
+
+    if (reservationNumber < raiz->reservationNumber)
+    {
+        raiz->izquierda = eliminar(raiz->izquierda, reservationNumber);
+    }
+    else if (reservationNumber > raiz->reservationNumber)
+    {
+        raiz->derecha = eliminar(raiz->derecha, reservationNumber);
+    }
+    else
+    {
+        // El nodo actual es el que se desea eliminar
+
+        // Caso 1: El nodo es una hoja
+        if (raiz->izquierda == NULL && raiz->derecha == NULL)
+        {
+            free(raiz);
+            return NULL;
+        }
+
+        // Caso 2: a) El nodo tiene un hijo a la derecha
+        if (raiz->izquierda == NULL)
+        {
+            NODO *temp = raiz->derecha;
+            free(raiz);
+            return temp;
+        }
+        // Caso 2: b) El nodo tiene un hijo a la izquierda
+        if (raiz->derecha == NULL)
+        {
+            NODO *temp = raiz->izquierda;
+            free(raiz);
+            return temp;
+        }
+
+        // Caso 3: El nodo tiene dos hijos
+        NODO *temp = minimoValor(raiz->derecha);
+
+        // Se copian los valores del nodo mínimo al nodo actual
+        raiz->reservationNumber = temp->reservationNumber;
+        strcpy(raiz->namePassanger, temp->namePassanger);
+        strcpy(raiz->destinationPassanger, temp->destinationPassanger);
+
+        // Se elimina el nodo mínimo del subárbol derecho
+        raiz->derecha = eliminar(raiz->derecha, temp->reservationNumber);
+    }
+
+    return raiz;
 }
 
 NODO *SearchDestiny(NODO *raiz, char destination[])
@@ -179,6 +251,7 @@ int main()
         case 2:
             printf("Ingrese el número de reserva a cancelar\n");
             scanf("%d", &reservationNumber);
+            raiz = eliminar(raiz, reservationNumber);
             break;
 
         case 3: // Saul: Agregue la busqueda por numero de reserva. Es medio basica la implementacion en el case pero funciona.
