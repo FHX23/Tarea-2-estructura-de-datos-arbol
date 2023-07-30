@@ -1,7 +1,7 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 struct Nodoreservas
 {
@@ -17,11 +17,13 @@ typedef struct Nodoreservas NODO;
 // Prototipos Nodo
 NODO *inicializar(int reservationNumber, char namePassanger[], char destinationPassanger[]);
 NODO *insertar(NODO *raiz, int reservationNumber, char namePassanger[], char destinationPassanger[]);
-NODO *SearchDestiny(NODO *raiz, char destination[]);
 
 // Prototipos Void
 void inOrden(NODO *rarbol);
 void treeFree(NODO *rarbol);
+
+//prototipos void 
+bool SearchAndPrintDestiny(NODO* nodo, const char* destino);
 
 // Prototipos Int
 int binarySearch(NODO *rarbol, int reservationNumber);
@@ -68,7 +70,7 @@ void inOrden(NODO *rarbol)
         inOrden(rarbol->izquierda);
         printf("Número de reserva: %d \n", rarbol->reservationNumber);
         printf("Pasajero: %s \n", rarbol->namePassanger);
-        printf("Destino Vuelo: %s \n", rarbol->destinationPassanger);
+        printf("Destino Vuelo: %s \n\n", rarbol->destinationPassanger);
         inOrden(rarbol->derecha);
     }
 }
@@ -141,30 +143,7 @@ NODO *eliminar(NODO *raiz, int reservationNumber)
     return raiz;
 }
 
-NODO *SearchDestiny(NODO *raiz, char destination[])
-{
-    if (raiz == NULL)
-    {
-        return NULL;
-    }
 
-    if (strcmp(raiz->destinationPassanger, destination) == 0)
-    {
-        return raiz;
-    }
-
-    NODO *izquierda = SearchDestiny(raiz->izquierda, destination);
-    NODO *derecha = SearchDestiny(raiz->derecha, destination);
-
-    if (izquierda != NULL)
-    {
-        return izquierda;
-    }
-    else
-    {
-        return derecha;
-    }
-}
 
 int binarySearch(NODO *rarbol, int reservationNumber)
 {
@@ -196,14 +175,35 @@ void treefree(NODO *rarbol)
     }
 }
 
+bool SearchAndPrintDestiny(NODO* nodo, const char* destino) {
+    if (nodo == NULL) {
+        return false;
+    }
+
+    bool found = false;
+
+    if (strcmp(nodo->destinationPassanger, destino) == 0) {
+        printf("Se encontro una reserva con el destino %s:\n", destino);
+        printf("Numero de reserva: %d\n", nodo->reservationNumber);
+        printf("Pasajero: %s\n", nodo->namePassanger);
+        printf("Destino del vuelo: %s\n\n", nodo->destinationPassanger);
+        found = true;
+    }
+
+    bool foundInLeft = SearchAndPrintDestiny(nodo->izquierda, destino);
+    bool foundInRight = SearchAndPrintDestiny(nodo->derecha, destino);
+
+    return found || foundInLeft || foundInRight;
+}
+
 int menu()
 {
     int opcion;
 
     printf("1. Ingresar nueva reserva\n");
     printf("2. Cancelar una reserva\n");
-    printf("3. Buscar datos de una reserva según su número de reserva\n");
-    printf("4. Buscar una reserva según su destino\n");
+    printf("3. Buscar datos de una reserva segun su numero de reserva\n");
+    printf("4. Buscar una reserva segun su destino\n");
     printf("5. Mostrar todas las reservas\n");
     printf("6. Cerrar el programa\n");
     scanf("%d", &opcion);
@@ -215,8 +215,8 @@ int menu()
             printf("Dato erróneo, ingrese nuevamente\n");
             printf("1. Ingresar nueva reserva\n");
             printf("2. Cancelar una reserva\n");
-            printf("3. Buscar datos de una reserva según su número de reserva\n");
-            printf("4. Buscar una reserva según su destino\n");
+            printf("3. Buscar datos de una reserva segun su numero de reserva\n");
+            printf("4. Buscar una reserva segun su destino\n");
             printf("5. Mostrar todas las reservas\n");
             printf("6. Cerrar el programa\n");
             scanf("%d", &opcion);
@@ -225,6 +225,9 @@ int menu()
     system("cls");
     return opcion;
 }
+
+
+
 
 int main()
 {
@@ -243,19 +246,19 @@ int main()
             scanf("%s", namePassanger);
             printf("Ingrese su destino: \n");
             scanf("%s", destinationPassanger);
-            printf("Ingrese su número de reserva\n");
+            printf("Ingrese su numero de reserva\n");
             scanf("%d", &reservationNumber);
             raiz = insertar(raiz, reservationNumber, namePassanger, destinationPassanger);
             break;
 
         case 2:
-            printf("Ingrese el número de reserva a cancelar\n");
+            printf("Ingrese el numero de reserva a cancelar\n");
             scanf("%d", &reservationNumber);
             raiz = eliminar(raiz, reservationNumber);
             break;
 
         case 3: // Saul: Agregue la busqueda por numero de reserva. Es medio basica la implementacion en el case pero funciona.
-            printf("Ingrese el número de reserva a buscar\n");
+            printf("Ingrese el numero de reserva a buscar\n");
             int targetReservation;
             scanf("%d", &targetReservation);
             int resultado = binarySearch(raiz, targetReservation);
@@ -270,24 +273,19 @@ int main()
             break;
 
         case 4: // Saul: Agregue la Busqueda por destino, mientras tanto esta limitada a solo la primer persona encontrada.
-            printf("Ingrese el destino a buscar:\n");
-            scanf("%s", destinationPassanger);
-            NODO *reservaDestino = SearchDestiny(raiz, destinationPassanger);
-            if (reservaDestino != NULL)
-            {
-                printf("Se encontró una reserva con el destino %s:\n", destinationPassanger);
-                printf("Número de reserva: %d\n", reservaDestino->reservationNumber);
-                printf("Pasajero: %s\n", reservaDestino->namePassanger);
-                printf("Destino del vuelo: %s\n", reservaDestino->destinationPassanger);
-            }
-            else
-            {
-                printf("No se encontró ninguna reserva con el destino %s\n", destinationPassanger);
-            }
-            break;
+        	// la hize denuevo para que recorra el arbol y me muestre todos los que coincide  altiro
+        	// y si no encontro a nadie muestre el mensaje 
+			printf("Ingrese el destino a buscar:\n");
+			scanf("%s", destinationPassanger);
+			bool found = SearchAndPrintDestiny(raiz, destinationPassanger);
+					
+			if (!found){
+    			printf("No se encontró ninguna reserva con el destino %s\n", destinationPassanger);
+			}
+			break;
 
         case 5:
-            printf("A continuación se muestran todas las reservas:\n");
+            printf("A continuacion se muestran todas las reservas:\n");
             inOrden(raiz);
             break;
 
@@ -296,7 +294,7 @@ int main()
             break;
 
         default:
-            printf("Opción inválida, intente nuevamente...\n");
+            printf("Opcion invalida, intente nuevamente...\n");
             break;
         }
 
