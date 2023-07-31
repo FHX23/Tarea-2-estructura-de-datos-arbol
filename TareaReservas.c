@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stdbool.h>
 
+// https://github.com/FHX23/Tarea-2-estructura-de-datos-arbol
+
 /* Codigo creado por Matias Arenas y Saul Muñoz.
 Todo esta en ingles por buenas practicas de programacion.
 Hicimos uso al maximo de Dividir y Conquistar,
