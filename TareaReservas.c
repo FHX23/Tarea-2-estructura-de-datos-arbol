@@ -3,6 +3,16 @@
 #include <string.h>
 #include <stdbool.h>
 
+/* Codigo creado por Matias Arenas y Saul Muñoz.
+Todo esta en ingles por buenas practicas de programacion.
+Hicimos uso al maximo de Dividir y Conquistar,
+Separamos cada funcion con el fin de hacer el codigo simple y limpio.
+Como trabajamos ambos a la par y mediante GitHub,
+nos permitio trabajar muy bien en equipo.
+Esta bien comentado :)
+*/
+
+// Estructura Basica para el registro de vuelos
 struct BookingNode
 {
     int reservationNumber;
@@ -14,7 +24,7 @@ struct BookingNode
 
 typedef struct BookingNode Node;
 
-// Prototipos Node
+// Prototipos Nodos
 Node *createNode(int reservationNumber, char namePassanger[], char destinationPassanger[]);
 Node *insertNode(Node *root, int reservationNumber, char namePassanger[], char destinationPassanger[]);
 
@@ -22,47 +32,48 @@ Node *insertNode(Node *root, int reservationNumber, char namePassanger[], char d
 void inOrder(Node *root);
 void treeFree(Node *root);
 
-// Prototipos Void
+// Prototipos bool(Uso de <stdbool.h>)
 bool SearchAndPrintDestiny(Node *Node, const char *destiny);
 
 // Prototipos Int
 int binarySearch(Node *root, int reservationNumber);
 int menu();
 
+// Funcion para inicializar un nuevo Arbol.
 Node *createNode(int reservationNumber, char namePassanger[], char destinationPassanger[])
 {
-    Node *newNode = (Node *)malloc(sizeof(Node));
+    Node *newNode = (Node *)malloc(sizeof(Node)); // Solicitamos memoria a medida que se necesita.
     newNode->reservationNumber = reservationNumber;
-    strcpy(newNode->namePassanger, namePassanger);
+    strcpy(newNode->namePassanger, namePassanger); // Con strcpy se copian los valores en los nodos.
     strcpy(newNode->destinationPassanger, destinationPassanger);
-    newNode->left = NULL;
+    newNode->left = NULL; // Al iniciar el arbol los subNodos apuntan a vacio.
     newNode->right = NULL;
     return newNode;
 }
 
+// Funcion para insertar un nueno nodo segun metodo de arbol binario.
 Node *insertNode(Node *root, int reservationNumber, char namePassanger[], char destinationPassanger[])
 {
     if (root == NULL)
     {
-        return createNode(reservationNumber, namePassanger, destinationPassanger);
+        return createNode(reservationNumber, namePassanger, destinationPassanger); // Si no existe, se crea.
     }
-
-    if (reservationNumber < root->reservationNumber)
+    if (reservationNumber < root->reservationNumber) // Si es menor, recursividad a la izquierda.
     {
         root->left = insertNode(root->left, reservationNumber, namePassanger, destinationPassanger);
     }
-    else if (reservationNumber > root->reservationNumber)
+    else if (reservationNumber > root->reservationNumber) // Si es mayor, recursividad a la derecha.
     {
         root->right = insertNode(root->right, reservationNumber, namePassanger, destinationPassanger);
     }
-    else
+    else // Condicion en caso de que el numero ingresado ya exista.
     {
         printf("El numero de reserva ingresado ya existe. \n");
     }
-
-    return root;
+    return root; // Se retorna la raiz.
 }
 
+// Funcion que ordena de menor a mayor.
 void inOrder(Node *root)
 {
     if (root != NULL)
@@ -75,18 +86,18 @@ void inOrder(Node *root)
     }
 }
 
+// Funcion para validar si el nodo tiene dos hijos y poder eliminar.
 Node *minValue(Node *root)
 {
-    Node *actual = root;
-
+    Node *actual = root; // Uso de nodo temporal para no modificar el original.
     while (actual->left != NULL)
     {
         actual = actual->left;
     }
-
-    return actual;
+    return actual; // Se retorna el temporal debido a que es una funcion para eliminar.
 }
 
+// Funcion para eliminiar Nodos.
 Node *deleteNode(Node *root, int reservationNumber)
 {
     if (root == NULL)
@@ -94,18 +105,17 @@ Node *deleteNode(Node *root, int reservationNumber)
         return root;
     }
 
-    if (reservationNumber < root->reservationNumber)
+    if (reservationNumber < root->reservationNumber) // Si es menor, elimina el izquierdo.
     {
         root->left = deleteNode(root->left, reservationNumber);
     }
-    else if (reservationNumber > root->reservationNumber)
+    else if (reservationNumber > root->reservationNumber) // Si es mayor, elimina el derecho.
     {
         root->right = deleteNode(root->right, reservationNumber);
     }
     else
     {
         // El Node actual es el que se desea eliminar
-
         // Caso 1: El Node es una hoja
         if (root->left == NULL && root->right == NULL)
         {
@@ -128,17 +138,17 @@ Node *deleteNode(Node *root, int reservationNumber)
         }
         // Caso 3: El Node tiene dos hijos
         Node *temp = minValue(root->right);
-        // Se copian los valores del Node mínimo al Node actual
+        // Se copian los valores del Node mínimo al Nodo actual
         root->reservationNumber = temp->reservationNumber;
         strcpy(root->namePassanger, temp->namePassanger);
         strcpy(root->destinationPassanger, temp->destinationPassanger);
-        // Se elimina el Node mínimo del subárbol derecho
+        // Se elimina el Nodo mínimo del subárbol derecho
         root->right = deleteNode(root->right, temp->reservationNumber);
     }
-
     return root;
 }
 
+// Funcion de busqueda con algoritmo usual llamado busqueda binaria.
 int binarySearch(Node *root, int reservationNumber)
 {
     if (root == NULL)
@@ -159,6 +169,7 @@ int binarySearch(Node *root, int reservationNumber)
     }
 }
 
+// Funcion que libera memoria debido a que usamos memoria dinamica.
 void treeFree(Node *root)
 {
     if (root != NULL)
@@ -169,6 +180,7 @@ void treeFree(Node *root)
     }
 }
 
+// Funcion que busca por destino y ademas imprime el resultado.
 bool SearchAndPrintDestiny(Node *Node, const char *destiny)
 {
     if (Node == NULL)
@@ -176,7 +188,7 @@ bool SearchAndPrintDestiny(Node *Node, const char *destiny)
         return false;
     }
     bool found = false;
-    if (strcmp(Node->destinationPassanger, destiny) == 0)
+    if (strcmp(Node->destinationPassanger, destiny) == 0) // Con strcmp se comparan los valores.
     {
         printf("Se encontro una reserva con el destino %s:\n", destiny);
         printf("Numero de reserva: %d\n", Node->reservationNumber);
@@ -184,11 +196,12 @@ bool SearchAndPrintDestiny(Node *Node, const char *destiny)
         printf("Destino del vuelo: %s\n\n", Node->destinationPassanger);
         found = true;
     }
-    bool foundInLeft = SearchAndPrintDestiny(Node->left, destiny);
-    bool foundInRight = SearchAndPrintDestiny(Node->right, destiny);
-    return found || foundInLeft || foundInRight;
+    bool foundInLeft = SearchAndPrintDestiny(Node->left, destiny);   // Si encuentra, recursividad a la izquierda.
+    bool foundInRight = SearchAndPrintDestiny(Node->right, destiny); // Si encuentra, recursividad a la derecha.
+    return found || foundInLeft || foundInRight;                     // Retorna siempre verdad a menos que todos sean falsos.
 }
 
+// Funcion de menu basica que solo retorna la opcion.
 int menu()
 {
     int option;
@@ -218,6 +231,7 @@ int menu()
     return option;
 }
 
+// Funcion principal que llama a todas las demas.
 int main()
 {
     Node *root = NULL;
