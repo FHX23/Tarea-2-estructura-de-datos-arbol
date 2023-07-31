@@ -27,6 +27,8 @@ typedef struct BookingNode Node;
 // Prototipos Nodos
 Node *createNode(int reservationNumber, char namePassanger[], char destinationPassanger[]);
 Node *insertNode(Node *root, int reservationNumber, char namePassanger[], char destinationPassanger[]);
+Node *minValue(Node *root);
+Node *deleteNode(Node *root, int reservationNumber);
 
 // Prototipos Void
 void inOrder(Node *root);
@@ -227,7 +229,7 @@ int menu()
             scanf("%d", &option);
         } while (option > 6 || option < 1);
     }
-    system("cls");
+    system("clear");
     return option;
 }
 
