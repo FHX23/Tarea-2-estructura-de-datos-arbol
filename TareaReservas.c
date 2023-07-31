@@ -39,9 +39,6 @@ void treeFree(Node *root);
 // Prototipos bool(Uso de <stdbool.h>)
 bool SearchAndPrintDestiny(Node *Node, const char *destiny);
 
-// prototipos void
-bool SearchAndPrintDestiny(NODO *nodo, const char *destino);
-
 // Prototipos Int
 int binarySearch(Node *root, int reservationNumber);
 int menu();
