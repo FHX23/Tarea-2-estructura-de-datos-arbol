@@ -1,213 +1,205 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
-struct Nodoreservas
+struct BookingNode
 {
     int reservationNumber;
     char namePassanger[50];
     char destinationPassanger[50];
-    struct Nodoreservas *izquierda;
-    struct Nodoreservas *derecha;
+    struct BookingNode *left;
+    struct BookingNode *right;
 };
 
-typedef struct Nodoreservas NODO;
+typedef struct BookingNode Node;
 
-// Prototipos Nodo
-NODO *inicializar(int reservationNumber, char namePassanger[], char destinationPassanger[]);
-NODO *insertar(NODO *raiz, int reservationNumber, char namePassanger[], char destinationPassanger[]);
-NODO *SearchDestiny(NODO *raiz, char destination[]);
+// Prototipos Node
+Node *createNode(int reservationNumber, char namePassanger[], char destinationPassanger[]);
+Node *insertNode(Node *root, int reservationNumber, char namePassanger[], char destinationPassanger[]);
 
 // Prototipos Void
-void inOrden(NODO *rarbol);
-void treeFree(NODO *rarbol);
+void inOrder(Node *root);
+void treeFree(Node *root);
+
+// Prototipos Void
+bool SearchAndPrintDestiny(Node *Node, const char *destiny);
 
 // Prototipos Int
-int binarySearch(NODO *rarbol, int reservationNumber);
+int binarySearch(Node *root, int reservationNumber);
 int menu();
 
-NODO *inicializar(int reservationNumber, char namePassanger[], char destinationPassanger[])
+Node *createNode(int reservationNumber, char namePassanger[], char destinationPassanger[])
 {
-    NODO *nuevoNodo = (NODO *)malloc(sizeof(NODO));
-    nuevoNodo->reservationNumber = reservationNumber;
-    strcpy(nuevoNodo->namePassanger, namePassanger);
-    strcpy(nuevoNodo->destinationPassanger, destinationPassanger);
-    nuevoNodo->izquierda = NULL;
-    nuevoNodo->derecha = NULL;
-    return nuevoNodo;
+    Node *newNode = (Node *)malloc(sizeof(Node));
+    newNode->reservationNumber = reservationNumber;
+    strcpy(newNode->namePassanger, namePassanger);
+    strcpy(newNode->destinationPassanger, destinationPassanger);
+    newNode->left = NULL;
+    newNode->right = NULL;
+    return newNode;
 }
 
-NODO *insertar(NODO *raiz, int reservationNumber, char namePassanger[], char destinationPassanger[])
+Node *insertNode(Node *root, int reservationNumber, char namePassanger[], char destinationPassanger[])
 {
-    if (raiz == NULL)
+    if (root == NULL)
     {
-        return inicializar(reservationNumber, namePassanger, destinationPassanger);
+        return createNode(reservationNumber, namePassanger, destinationPassanger);
     }
 
-    if (reservationNumber < raiz->reservationNumber)
+    if (reservationNumber < root->reservationNumber)
     {
-        raiz->izquierda = insertar(raiz->izquierda, reservationNumber, namePassanger, destinationPassanger);
+        root->left = insertNode(root->left, reservationNumber, namePassanger, destinationPassanger);
     }
-    else if (reservationNumber > raiz->reservationNumber)
+    else if (reservationNumber > root->reservationNumber)
     {
-        raiz->derecha = insertar(raiz->derecha, reservationNumber, namePassanger, destinationPassanger);
+        root->right = insertNode(root->right, reservationNumber, namePassanger, destinationPassanger);
     }
     else
     {
         printf("El numero de reserva ingresado ya existe. \n");
     }
 
-    return raiz;
+    return root;
 }
 
-void inOrden(NODO *rarbol)
+void inOrder(Node *root)
 {
-    if (rarbol != NULL)
+    if (root != NULL)
     {
-        inOrden(rarbol->izquierda);
-        printf("Número de reserva: %d \n", rarbol->reservationNumber);
-        printf("Pasajero: %s \n", rarbol->namePassanger);
-        printf("Destino Vuelo: %s \n", rarbol->destinationPassanger);
-        inOrden(rarbol->derecha);
+        inOrder(root->left);
+        printf("\nNúmero de reserva: %d \n", root->reservationNumber);
+        printf("Pasajero: %s \n", root->namePassanger);
+        printf("Destino Vuelo: %s \n\n", root->destinationPassanger);
+        inOrder(root->right);
     }
 }
 
-NODO *minimoValor(NODO *raiz)
+Node *minValue(Node *root)
 {
-    NODO *actual = raiz;
+    Node *actual = root;
 
-    while (actual->izquierda != NULL)
+    while (actual->left != NULL)
     {
-        actual = actual->izquierda;
+        actual = actual->left;
     }
 
     return actual;
 }
 
-NODO *eliminar(NODO *raiz, int reservationNumber)
+Node *deleteNode(Node *root, int reservationNumber)
 {
-    if (raiz == NULL)
+    if (root == NULL)
     {
-        return raiz;
+        return root;
     }
 
-    if (reservationNumber < raiz->reservationNumber)
+    if (reservationNumber < root->reservationNumber)
     {
-        raiz->izquierda = eliminar(raiz->izquierda, reservationNumber);
+        root->left = deleteNode(root->left, reservationNumber);
     }
-    else if (reservationNumber > raiz->reservationNumber)
+    else if (reservationNumber > root->reservationNumber)
     {
-        raiz->derecha = eliminar(raiz->derecha, reservationNumber);
+        root->right = deleteNode(root->right, reservationNumber);
     }
     else
     {
-        // El nodo actual es el que se desea eliminar
+        // El Node actual es el que se desea eliminar
 
-        // Caso 1: El nodo es una hoja
-        if (raiz->izquierda == NULL && raiz->derecha == NULL)
+        // Caso 1: El Node es una hoja
+        if (root->left == NULL && root->right == NULL)
         {
-            free(raiz);
+            free(root);
             return NULL;
         }
-
-        // Caso 2: a) El nodo tiene un hijo a la derecha
-        if (raiz->izquierda == NULL)
+        // Caso 2: a) El Node tiene un hijo a la right
+        if (root->left == NULL)
         {
-            NODO *temp = raiz->derecha;
-            free(raiz);
+            Node *temp = root->right;
+            free(root);
             return temp;
         }
-        // Caso 2: b) El nodo tiene un hijo a la izquierda
-        if (raiz->derecha == NULL)
+        // Caso 2: b) El Node tiene un hijo a la left
+        if (root->right == NULL)
         {
-            NODO *temp = raiz->izquierda;
-            free(raiz);
+            Node *temp = root->left;
+            free(root);
             return temp;
         }
-
-        // Caso 3: El nodo tiene dos hijos
-        NODO *temp = minimoValor(raiz->derecha);
-
-        // Se copian los valores del nodo mínimo al nodo actual
-        raiz->reservationNumber = temp->reservationNumber;
-        strcpy(raiz->namePassanger, temp->namePassanger);
-        strcpy(raiz->destinationPassanger, temp->destinationPassanger);
-
-        // Se elimina el nodo mínimo del subárbol derecho
-        raiz->derecha = eliminar(raiz->derecha, temp->reservationNumber);
+        // Caso 3: El Node tiene dos hijos
+        Node *temp = minValue(root->right);
+        // Se copian los valores del Node mínimo al Node actual
+        root->reservationNumber = temp->reservationNumber;
+        strcpy(root->namePassanger, temp->namePassanger);
+        strcpy(root->destinationPassanger, temp->destinationPassanger);
+        // Se elimina el Node mínimo del subárbol derecho
+        root->right = deleteNode(root->right, temp->reservationNumber);
     }
 
-    return raiz;
+    return root;
 }
 
-NODO *SearchDestiny(NODO *raiz, char destination[])
+int binarySearch(Node *root, int reservationNumber)
 {
-    if (raiz == NULL)
-    {
-        return NULL;
-    }
-
-    if (strcmp(raiz->destinationPassanger, destination) == 0)
-    {
-        return raiz;
-    }
-
-    NODO *izquierda = SearchDestiny(raiz->izquierda, destination);
-    NODO *derecha = SearchDestiny(raiz->derecha, destination);
-
-    if (izquierda != NULL)
-    {
-        return izquierda;
-    }
-    else
-    {
-        return derecha;
-    }
-}
-
-int binarySearch(NODO *rarbol, int reservationNumber)
-{
-    if (rarbol == NULL)
+    if (root == NULL)
     {
         return -1;
     }
-    else if (rarbol->reservationNumber == reservationNumber)
+    else if (root->reservationNumber == reservationNumber)
     {
         return 0;
     }
-    else if (reservationNumber < rarbol->reservationNumber)
+    else if (reservationNumber < root->reservationNumber)
     {
-        return binarySearch(rarbol->izquierda, reservationNumber);
+        return binarySearch(root->left, reservationNumber);
     }
     else
     {
-        return binarySearch(rarbol->derecha, reservationNumber);
+        return binarySearch(root->right, reservationNumber);
     }
 }
 
-void treefree(NODO *rarbol)
+void treeFree(Node *root)
 {
-    if (rarbol != NULL)
+    if (root != NULL)
     {
-        treefree(rarbol->izquierda);
-        treefree(rarbol->derecha);
-        free(rarbol);
+        treeFree(root->left);
+        treeFree(root->right);
+        free(root);
     }
+}
+
+bool SearchAndPrintDestiny(Node *Node, const char *destiny)
+{
+    if (Node == NULL)
+    {
+        return false;
+    }
+    bool found = false;
+    if (strcmp(Node->destinationPassanger, destiny) == 0)
+    {
+        printf("Se encontro una reserva con el destino %s:\n", destiny);
+        printf("Numero de reserva: %d\n", Node->reservationNumber);
+        printf("Pasajero: %s\n", Node->namePassanger);
+        printf("Destino del vuelo: %s\n\n", Node->destinationPassanger);
+        found = true;
+    }
+    bool foundInLeft = SearchAndPrintDestiny(Node->left, destiny);
+    bool foundInRight = SearchAndPrintDestiny(Node->right, destiny);
+    return found || foundInLeft || foundInRight;
 }
 
 int menu()
 {
-    int opcion;
-
+    int option;
     printf("1. Ingresar nueva reserva\n");
     printf("2. Cancelar una reserva\n");
-    printf("3. Buscar datos de una reserva según su número de reserva\n");
-    printf("4. Buscar una reserva según su destino\n");
+    printf("3. Buscar datos de una reserva segun su numero de reserva\n");
+    printf("4. Buscar una reserva segun su destino\n");
     printf("5. Mostrar todas las reservas\n");
     printf("6. Cerrar el programa\n");
-    scanf("%d", &opcion);
-    if (opcion > 6 || opcion < 1)
+    scanf("%d", &option);
+    if (option > 6 || option < 1)
     {
         do
         {
@@ -215,94 +207,76 @@ int menu()
             printf("Dato erróneo, ingrese nuevamente\n");
             printf("1. Ingresar nueva reserva\n");
             printf("2. Cancelar una reserva\n");
-            printf("3. Buscar datos de una reserva según su número de reserva\n");
-            printf("4. Buscar una reserva según su destino\n");
+            printf("3. Buscar datos de una reserva segun su numero de reserva\n");
+            printf("4. Buscar una reserva segun su destino\n");
             printf("5. Mostrar todas las reservas\n");
             printf("6. Cerrar el programa\n");
-            scanf("%d", &opcion);
-        } while (opcion > 6 || opcion < 1);
+            scanf("%d", &option);
+        } while (option > 6 || option < 1);
     }
     system("cls");
-    return opcion;
+    return option;
 }
 
 int main()
 {
-    NODO *raiz = NULL;
-
-    int opcion, reservationNumber;
+    Node *root = NULL;
+    int option, reservationNumber;
     char namePassanger[50], destinationPassanger[50];
-
     do
     {
-        opcion = menu();
-        switch (opcion)
+        option = menu();
+        switch (option)
         {
         case 1:
             printf("Ingrese su nombre: \n");
             scanf("%s", namePassanger);
             printf("Ingrese su destino: \n");
             scanf("%s", destinationPassanger);
-            printf("Ingrese su número de reserva\n");
+            printf("Ingrese su numero de reserva\n");
             scanf("%d", &reservationNumber);
-            raiz = insertar(raiz, reservationNumber, namePassanger, destinationPassanger);
+            root = insertNode(root, reservationNumber, namePassanger, destinationPassanger);
             break;
-
         case 2:
-            printf("Ingrese el número de reserva a cancelar\n");
+            printf("Ingrese el numero de reserva a cancelar\n");
             scanf("%d", &reservationNumber);
-            raiz = eliminar(raiz, reservationNumber);
+            root = deleteNode(root, reservationNumber);
             break;
-
-        case 3: // Saul: Agregue la busqueda por numero de reserva. Es medio basica la implementacion en el case pero funciona.
-            printf("Ingrese el número de reserva a buscar\n");
+        case 3:
+            printf("Ingrese el numero de reserva a buscar\n");
             int targetReservation;
             scanf("%d", &targetReservation);
-            int resultado = binarySearch(raiz, targetReservation);
-            if (resultado == -1)
+            int result = binarySearch(root, targetReservation);
+            if (result == -1)
             {
-                printf("No encontrado!\n");
+                printf("No se encontró ninguna reserva con el numero %d\n", targetReservation);
             }
             else
             {
-                printf("Encontrado!\n");
+                printf("El numero de reserva si existe!\n");
             }
             break;
-
-        case 4: // Saul: Agregue la Busqueda por destino, mientras tanto esta limitada a solo la primer persona encontrada.
+        case 4:
             printf("Ingrese el destino a buscar:\n");
             scanf("%s", destinationPassanger);
-            NODO *reservaDestino = SearchDestiny(raiz, destinationPassanger);
-            if (reservaDestino != NULL)
-            {
-                printf("Se encontró una reserva con el destino %s:\n", destinationPassanger);
-                printf("Número de reserva: %d\n", reservaDestino->reservationNumber);
-                printf("Pasajero: %s\n", reservaDestino->namePassanger);
-                printf("Destino del vuelo: %s\n", reservaDestino->destinationPassanger);
-            }
-            else
+            bool found = SearchAndPrintDestiny(root, destinationPassanger);
+            if (!found)
             {
                 printf("No se encontró ninguna reserva con el destino %s\n", destinationPassanger);
             }
             break;
-
         case 5:
-            printf("A continuación se muestran todas las reservas:\n");
-            inOrden(raiz);
+            printf("A continuacion se muestran todas las reservas:\n");
+            inOrder(root);
             break;
-
         case 6:
             printf("Cerrando el programa...\n");
             break;
-
         default:
-            printf("Opción inválida, intente nuevamente...\n");
+            printf("option invalida, intente nuevamente...\n");
             break;
         }
-
-    } while (opcion != 6);
-
-    treefree(raiz);
-
+    } while (option != 6);
+    treeFree(root);
     return 0;
 }
